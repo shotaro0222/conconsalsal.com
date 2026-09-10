@@ -92,12 +92,12 @@ export default async function Home() {
         </p>
       </section>
 
-      {/* ▼▼▼ 追加：デフォルト診断ツール配置エリア ▼▼▼ */}
+     {/* ▼▼▼ 追加：デフォルト診断ツール配置エリア ▼▼▼ */}
       <section style={{ maxWidth: '800px', margin: '0 auto 40px auto', padding: '0 20px' }}>
-        <InteractiveTool config={defaultDiagnosisData} />
+        <InteractiveTool configStr={JSON.stringify(defaultDiagnosisData)} />
       </section>
       {/* ▲▲▲ 追加ここまで ▲▲▲ */}
-
+      
       {/* 記事一覧セクション */}
       <section style={{ maxWidth: '800px', margin: '0 auto', padding: '0 20px' }}>
         <h2 style={{ fontSize: '20px', color: '#0f172a', marginBottom: '24px', borderLeft: '5px solid #ea580c', paddingLeft: '12px' }}>
