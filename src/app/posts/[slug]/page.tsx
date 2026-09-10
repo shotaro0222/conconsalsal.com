@@ -19,10 +19,12 @@ export async function generateStaticParams() {
 function parseMarkdownToHTML(markdown: string) {
   let html = markdown.replace(/---[\s\S]*?---/, '');
   html = html.replace(/^### (.*$)/gim, '<h3 style="font-size: 1.2rem; margin-top: 2.5rem; margin-bottom: 1rem; color: #333;">$1</h3>')
-             .replace(/^## (.*$)/gim, '<h2 style="font-size: 1.5rem; border-bottom: 2px solid #0070f3; padding-bottom: 8px; margin-top: 3rem; margin-bottom: 1rem; color: #111;">$1</h2>')
+             // ★ デザイン修正：見出し2の下線をBizPioneerのオレンジに変更
+             .replace(/^## (.*$)/gim, '<h2 style="font-size: 1.5rem; border-bottom: 2px solid #ea580c; padding-bottom: 8px; margin-top: 3rem; margin-bottom: 1rem; color: #111;">$1</h2>')
              .replace(/^# (.*$)/gim, '') 
              .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
-             .replace(/\[([^\]]+)\]\(([^)]+)\)/gim, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #0070f3; text-decoration: underline;">$1</a>');
+             // ★ デザイン修正：リンク色をBizPioneerのオレンジに変更
+             .replace(/\[([^\]]+)\]\(([^)]+)\)/gim, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #ea580c; text-decoration: underline;">$1</a>');
   html = html.replace(/\n\n/g, '<br /><br />');
   return html;
 }
@@ -51,6 +53,13 @@ export default async function PostPage({ params }: { params: { slug: string } })
     if (h1Match) title = h1Match[1];
   }
 
+  // ★ 追加：カテゴリーを抽出する
+  let category = '未分類';
+  const categoryMatch = fileContents.match(/category:\s*["']?([^"'\n]+)["']?/);
+  if (categoryMatch) {
+    category = categoryMatch[1];
+  }
+
   // ★ 追加：Markdownの中から ```json 〜 ``` のブロックを探して抽出する
   let toolConfig = '';
   const jsonMatch = fileContents.match(/```json\n([\s\S]*?)\n```/);
@@ -65,11 +74,19 @@ export default async function PostPage({ params }: { params: { slug: string } })
   return (
     <article style={{ padding: '10px 20px', lineHeight: '1.8', color: '#444' }}>
       <div style={{ marginBottom: '30px' }}>
-        <Link href="/" style={{ color: '#0070f3', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
+        {/* ★ デザイン修正：戻るリンクをBizPioneerのオレンジに変更 */}
+        <Link href="/" style={{ color: '#ea580c', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
           ← トップページへ戻る
         </Link>
       </div>
-      <h1 style={{ fontSize: '28px', color: '#111', marginBottom: '40px', lineHeight: '1.4' }}>
+
+      {/* ★ 追加：カテゴリーバッジ（オレンジ基調） */}
+      <span style={{ display: 'inline-block', backgroundColor: '#fff7ed', color: '#ea580c', fontSize: '12px', fontWeight: 'bold', padding: '4px 12px', borderRadius: '16px', marginBottom: '12px' }}>
+        {category}
+      </span>
+
+      {/* タイトルの margin-top を 0 に調整してバッジとの隙間を最適化 */}
+      <h1 style={{ fontSize: '28px', color: '#111', marginBottom: '40px', lineHeight: '1.4', marginTop: '0' }}>
         {title}
       </h1>
       
