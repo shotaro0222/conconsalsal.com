@@ -22,12 +22,24 @@ async function getPosts() {
         if (h1Match) title = h1Match[1];
       }
 
+      // ★ 追加：カテゴリーを抽出する
+      let category = '未分類';
+      const categoryMatch = fileContents.match(/category:\s*["']?([^"'\n]+)["']?/);
+      if (categoryMatch) {
+        category = categoryMatch[1];
+      }
+
       let excerpt = '記事の詳細を読む...';
       const bodyLines = fileContents.replace(/---[\s\S]*?---/, '').replace(/^#.*$/m, '').split('\n');
       const firstLine = bodyLines.find(line => line.trim().length > 0 && !line.startsWith('<'));
       if (firstLine) excerpt = firstLine.substring(0, 80) + '...';
 
-      return { slug: filename.replace('.md', ''), title, excerpt };
+      return { 
+        slug: filename.replace('.md', ''), 
+        title, 
+        excerpt,
+        category // ★ 追加：カテゴリーを返す
+      };
     });
 
   return posts.sort((a, b) => (a.slug < b.slug ? 1 : -1));
@@ -78,6 +90,12 @@ export default async function Home() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {posts.map(post => (
               <article key={post.slug} style={{ padding: '24px', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#fff' }}>
+                
+                {/* ★ 追加：カテゴリーバッジ（オレンジ基調） */}
+                <span style={{ display: 'inline-block', backgroundColor: '#fff7ed', color: '#ea580c', fontSize: '12px', fontWeight: 'bold', padding: '4px 12px', borderRadius: '16px', marginBottom: '12px' }}>
+                  {post.category}
+                </span>
+
                 <h3 style={{ margin: '0 0 10px 0', fontSize: '19px' }}>
                   <Link href={`/posts/${post.slug}`} style={{ color: '#ea580c', textDecoration: 'none', fontWeight: 'bold' }}>
                     {post.title}
