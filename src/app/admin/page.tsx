@@ -13,7 +13,7 @@ export default function AdminDashboard() {
   const [summary, setSummary] = useState('');
 
   const REPO_OWNER = 'shotaro0222'; 
-  const REPO_NAME = 'reskill.com';
+  const REPO_NAME = 'conconsalsal.com';
 
   // 1. 記事生成トリガー
   const triggerGeneration = async (isBurst = false) => {
