@@ -1,5 +1,3 @@
-'use client'; //
-
 import Link from 'next/link';
 import fs from 'fs';
 import path from 'path';
@@ -79,9 +77,7 @@ export default async function Home() {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {posts.map(post => (
-              <article key={post.slug} style={{ padding: '24px', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#fff', borderTop: '3px solid transparent', transition: 'border-color 0.2s' }} 
-                       onMouseEnter={(e) => e.currentTarget.style.borderTop = '3px solid #ea580c'}
-                       onMouseLeave={(e) => e.currentTarget.style.borderTop = '3px solid transparent'}>
+              <article key={post.slug} style={{ padding: '24px', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#fff' }}>
                 <h3 style={{ margin: '0 0 10px 0', fontSize: '19px' }}>
                   <Link href={`/posts/${post.slug}`} style={{ color: '#ea580c', textDecoration: 'none', fontWeight: 'bold' }}>
                     {post.title}
