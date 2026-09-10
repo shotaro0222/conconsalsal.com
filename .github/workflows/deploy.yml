@@ -73,4 +73,4 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           
           # 2. rsyncで一発デプロイ（ホスト鍵の確認を強制スキップする最強オプションを追加）
-          rsync -avz --delete -e "ssh -p 10022 -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" ./out/ $FTP_USER@$FTP_HOST:~/re-skill0.com/public_html/
+          rsync -avz --delete -e "ssh -p 10022 -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" ./out/ $FTP_USER@$FTP_HOST:~/conconsalsal.com/public_html/
