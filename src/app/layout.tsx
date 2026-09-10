@@ -9,6 +9,13 @@ export const metadata = {
   description: '先人たちの知恵を、あなたのビジネスの推進力に。',
 };
 
+// ★ 追加：Next.js推奨のモバイル最適化（ビューポート）設定
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   // settings.json から読み込むか、直接画像にあるIDを指定
   const GTM_ID = settings.gtmId || 'GTM-WCW3FWWM';
@@ -39,6 +46,44 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             `,
           }}
         />
+
+        {/* ★ 追加：レスポンシブ対応用のCSS */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            /* デフォルト（PC・タブレット横）のレイアウト */
+            .layout-container {
+              max-width: 1000px;
+              margin: 40px auto;
+              display: flex;
+              gap: 40px;
+              padding: 0 20px;
+              align-items: flex-start;
+            }
+            .layout-main {
+              flex: 1;
+              background-color: #fff;
+              padding: 30px;
+              border-radius: 8px; /* BizPioneer のデザインに合わせる */
+              box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+              min-width: 0; /* Flexbox内で文字や画像がはみ出すのを防ぐ */
+              box-sizing: border-box;
+            }
+
+            /* スマホ（画面幅768px以下）のレイアウト */
+            @media (max-width: 768px) {
+              .layout-container {
+                flex-direction: column; /* 縦並びに変更 */
+                margin: 20px auto;
+                gap: 24px;
+                padding: 0 15px;
+              }
+              .layout-main {
+                width: 100%;
+                padding: 20px 15px; /* スマホでは余白を少し狭くして読みやすく */
+              }
+            }
+          `
+        }} />
       </head>
 
       <body style={{ margin: 0, padding: 0, backgroundColor: '#f8fafc', fontFamily: 'sans-serif' }}>
@@ -55,9 +100,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         <Header />
         
-        <div style={{ maxWidth: '1000px', margin: '40px auto', display: 'flex', gap: '40px', padding: '0 20px', alignItems: 'flex-start' }}>
+        {/* ★ 修正：インラインスタイルをやめ、クラス名でCSSを適用 */}
+        <div className="layout-container">
           
-          <main style={{ flex: 1, backgroundColor: '#fff', padding: '30px', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+          <main className="layout-main">
             {children}
           </main>
           <Sidebar />
