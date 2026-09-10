@@ -1,6 +1,22 @@
 import Link from 'next/link';
 import fs from 'fs';
 import path from 'path';
+// ★追加：InteractiveTool コンポーネントをインポート
+import InteractiveTool from '../components/InteractiveTool';
+
+// ★追加：BizPioneer用のデフォルト診断データ
+const defaultDiagnosisData = {
+  "title": "個人ビジネスの『戦略と生存確率』診断",
+  "questions": [
+    "現在の価格設定は、相場や競合ではなく「自分が提供する価値」を基準に決めている。",
+    "売上の大部分が、特定の1社（または1人の顧客）に依存していない。",
+    "自分のサービスの「誰にでもない、たった一人の理想の顧客」を即答できる。",
+    "過去半年で、自分の軸や条件に合わない仕事を意図的に「断った」経験がある。",
+    "1年後、自分の事業がどうなっていたいか、明確なビジョン（羅針盤）を持っている。"
+  ],
+  "resultHigh": "素晴らしい戦略とビジネスの軸を持っています！向かうべき方向は明確なので、あとは実務を自動化して加速させるだけです。効率化のヒントは <a href='https://reskill.bizpioneer.com' target='_blank' style='color:#2563eb; text-decoration:underline;'>Re:Skill Blog</a> で手に入れましょう。",
+  "resultLow": "目の前の売上や作業に追われ、「戦略の羅針盤」を見失っている危険性があります。まずはBizPioneerの記事でビジネスモデルを見直しましょう。もし焦りや疲れを感じているなら、<a href='https://mindful.bizpioneer.com' target='_blank' style='color:#52796f; text-decoration:underline;'>Mindful Shutter</a> で一度心を整えるのも一つの手です。"
+};
 
 // ★生成されたMarkdownファイルを読み込む関数
 async function getPosts() {
@@ -76,6 +92,12 @@ export default async function Home() {
         </p>
       </section>
 
+      {/* ▼▼▼ 追加：デフォルト診断ツール配置エリア ▼▼▼ */}
+      <section style={{ maxWidth: '800px', margin: '0 auto 40px auto', padding: '0 20px' }}>
+        <InteractiveTool config={defaultDiagnosisData} />
+      </section>
+      {/* ▲▲▲ 追加ここまで ▲▲▲ */}
+
       {/* 記事一覧セクション */}
       <section style={{ maxWidth: '800px', margin: '0 auto', padding: '0 20px' }}>
         <h2 style={{ fontSize: '20px', color: '#0f172a', marginBottom: '24px', borderLeft: '5px solid #ea580c', paddingLeft: '12px' }}>
@@ -91,7 +113,7 @@ export default async function Home() {
             {posts.map(post => (
               <article key={post.slug} style={{ padding: '24px', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#fff' }}>
                 
-                {/* ★ 追加：カテゴリーバッジ（オレンジ基調） */}
+                {/* カテゴリーバッジ（オレンジ基調） */}
                 <span style={{ display: 'inline-block', backgroundColor: '#fff7ed', color: '#ea580c', fontSize: '12px', fontWeight: 'bold', padding: '4px 12px', borderRadius: '16px', marginBottom: '12px' }}>
                   {post.category}
                 </span>
