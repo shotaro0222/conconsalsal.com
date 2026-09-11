@@ -78,24 +78,74 @@ export default function HubPage() {
     <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh', padding: '40px 20px', fontFamily: 'sans-serif' }}>
       <div style={{ maxWidth: '700px', margin: '0 auto', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
         
-        {/* 1. イントロダクション */}
+        {/* 1. イントロダクション画面（UX大幅改善） */}
         {step === 'intro' && (
           <div>
+            {/* ヒーローエリア */}
             <div style={{ backgroundColor: '#1e293b', padding: '50px 30px', textAlign: 'center', color: '#fff' }}>
-              <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 16px 0', lineHeight: '1.4' }}>
-                SoloCompass 総合評価システム
+              <h1 style={{ fontSize: '26px', fontWeight: 'bold', margin: '0 0 16px 0', lineHeight: '1.5' }}>
+                個人ビジネスの現在地を知る<br />「SoloCompass」総合評価
               </h1>
-              <p style={{ fontSize: '15px', color: '#cbd5e1', lineHeight: '1.6', margin: '0' }}>
-                15個の質問に直感で答えるだけで、あなたのビジネスの<br />「心・技・体」のバランスを即座に診断・レポート化します。
+              <p style={{ fontSize: '15px', color: '#cbd5e1', lineHeight: '1.7', margin: '0' }}>
+                戦略・実務・メンタル。15個の質問からあなたの現在地を即座に可視化し、<br />持続可能なビジネスを作るための「次の一手」を導き出します。
               </p>
             </div>
-            <div style={{ padding: '40px 30px', textAlign: 'center' }}>
-              <button 
-                onClick={() => setStep('quiz')}
-                style={{ backgroundColor: '#ea580c', color: '#fff', padding: '16px 40px', fontSize: '18px', fontWeight: 'bold', borderRadius: '30px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 6px rgba(234,88,12,0.3)' }}
-              >
-                無料診断をスタートする
-              </button>
+
+            <div style={{ padding: '40px 30px' }}>
+              
+              {/* なぜこの診断が必要なのか？（3軸の解説） */}
+              <h2 style={{ fontSize: '20px', textAlign: 'center', color: '#0f172a', marginBottom: '24px', borderBottom: '2px solid #e2e8f0', paddingBottom: '15px' }}>
+                行き詰まりの原因は、技術不足ではないかもしれません
+              </h2>
+              <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.7', marginBottom: '30px', textAlign: 'center' }}>
+                個人が自立し、長くビジネスを続けるためには「3つのバランス」が不可欠です。どれか1つでも欠けると、ビジネスは途端に苦しくなります。
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '40px' }}>
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                  <div style={{ backgroundColor: '#ea580c', color: '#fff', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold', flexShrink: 0 }}>体</div>
+                  <div>
+                    <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', color: '#0f172a' }}>戦略とビジネスモデル</h3>
+                    <p style={{ margin: '0', fontSize: '14px', color: '#475569', lineHeight: '1.5' }}>どこへ向かうべきかの「羅針盤」。戦う場所を間違えれば利益は出ません。</p>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                  <div style={{ backgroundColor: '#0070f3', color: '#fff', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold', flexShrink: 0 }}>技</div>
+                  <div>
+                    <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', color: '#0f172a' }}>実務・自動化スキル</h3>
+                    <p style={{ margin: '0', fontSize: '14px', color: '#475569', lineHeight: '1.5' }}>前に進むための「エンジン」。労働集約型から抜け出すためのIT技術です。</p>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                  <div style={{ backgroundColor: '#52796f', color: '#fff', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold', flexShrink: 0 }}>心</div>
+                  <div>
+                    <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', color: '#0f172a' }}>メンタル・マインドフルネス</h3>
+                    <p style={{ margin: '0', fontSize: '14px', color: '#475569', lineHeight: '1.5' }}>走り続けるための「メンテナンス」。心が折れれば、すべての歩みは止まります。</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 診断で得られる結果 */}
+              <div style={{ backgroundColor: '#f1f5f9', padding: '24px', borderRadius: '12px', marginBottom: '40px' }}>
+                <h3 style={{ fontSize: '16px', color: '#0f172a', margin: '0 0 16px 0', textAlign: 'center', fontWeight: 'bold' }}>
+                  🎯 この無料診断でわかること
+                </h3>
+                <ul style={{ margin: '0', paddingLeft: '20px', color: '#475569', fontSize: '14px', lineHeight: '1.8' }}>
+                  <li>15問の直感的な回答から、あなたの<b>「心・技・体」のバランスを即座にスコア化</b></li>
+                  <li>現在抱えている<b>「見えないボトルネック（弱点）」の特定</b></li>
+                  <li>弱点を補強し、次のステージへ進むための<b>具体的なアクションと推奨コンテンツ</b></li>
+                </ul>
+              </div>
+
+              {/* スタートボタン */}
+              <div style={{ textAlign: 'center' }}>
+                <button 
+                  onClick={() => setStep('quiz')}
+                  style={{ backgroundColor: '#2563eb', color: '#fff', padding: '16px 40px', fontSize: '18px', fontWeight: 'bold', borderRadius: '8px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 6px rgba(37,99,235,0.2)', width: '100%', maxWidth: '400px', transition: 'background 0.2s' }}
+                >
+                  無料で診断をスタートする (約1分)
+                </button>
+              </div>
             </div>
           </div>
         )}
