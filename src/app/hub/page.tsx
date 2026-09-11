@@ -1,98 +1,195 @@
-// src/app/hub/page.tsx
-import React from 'react';
+"use client"
+import React, { useState } from 'react';
 import Link from 'next/link';
 
-export const metadata = {
-  title: '総合評価レポート無料プレゼント | あなたの現在地をチェック',
-  description: '戦略、スキル、メンタルの3軸から、あなたのビジネスの持続可能性を診断する無料レポートをプレゼント。',
-};
-
 export default function HubPage() {
+  const [step, setStep] = useState<'intro' | 'quiz' | 'result'>('intro');
+  const [answers, setAnswers] = useState<number[]>(Array(15).fill(0));
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+
+  // 心・技・体の15問
+  const questions = [
+    // 【体：戦略（BizPioneer）】
+    { axis: '体', text: "現在の価格設定は、相場ではなく「自分が提供する価値」を基準にしている。" },
+    { axis: '体', text: "売上の大部分が、特定の1社や1人の顧客に依存していない。" },
+    { axis: '体', text: "自分のサービスの「たった一人の理想の顧客（ペルソナ）」を即答できる。" },
+    { axis: '体', text: "条件に合わない仕事を、意図的に「断る」ことができている。" },
+    { axis: '体', text: "1年後、自分の事業がどうなっていたいか、明確なビジョンがある。" },
+    // 【技：スキル（Re:Skill Blog）】
+    { axis: '技', text: "毎日発生する「コピペ」や定型文入力をツールで自動化している。" },
+    { axis: '技', text: "日程調整や請求書の発行に、ほとんど時間をかけていない。" },
+    { axis: '技', text: "PCが今すぐ壊れても、クラウドを利用して別のPCで即座に業務を再開できる。" },
+    { axis: '技', text: "業務フローが自分の頭の中だけでなく、メモやツールに書き出されている。" },
+    { axis: '技', text: "AI（ChatGPTなど）を週に1回以上は実務の効率化に活用している。" },
+    // 【心：メンタル（Mindful Shutter）】
+    { axis: '心', text: "休日は仕事の連絡やメールを無意識に確認しないようにしている。" },
+    { axis: '心', text: "寝る直前まで、明日のタスクや売上の不安について考えることはない。" },
+    { axis: '心', text: "この1週間で、意図的に「何もしない時間」を3時間以上作った。" },
+    { axis: '心', text: "SNSで同業者の活躍を見ても、焦りや自己嫌悪に陥ることはない。" },
+    { axis: '心', text: "仕事とは全く関係のない「純粋な趣味」を心から楽しむ余裕がある。" }
+  ];
+
+  const handleAnswer = (score: number) => {
+    const newAnswers = [...answers];
+    newAnswers[currentQuestion] = score;
+    setAnswers(newAnswers);
+
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1);
+    } else {
+      setStep('result');
+    }
+  };
+
+  const calculateScores = () => {
+    const tai = answers.slice(0, 5).reduce((a, b) => a + b, 0); // 0〜25点
+    const waza = answers.slice(5, 10).reduce((a, b) => a + b, 0); // 0〜25点
+    const shin = answers.slice(10, 15).reduce((a, b) => a + b, 0); // 0〜25点
+    return { tai, waza, shin };
+  };
+
+  const getAdvice = (scores: { tai: number; waza: number; shin: number }) => {
+    const minScore = Math.min(scores.tai, scores.waza, scores.shin);
+    if (minScore === scores.shin) {
+      return {
+        title: "警告：メンタル（心）がすり減っています",
+        text: "戦略やスキル以前に、心が悲鳴を上げています。焦って新しいことを始める前に、まずはデジタルデトックスと休息が必要です。",
+        link: "https://mindful.bizpioneer.com", // ★ご自身のMindful ShutterのURLに変更
+        linkText: "Mindful Shutterで心を整える"
+      };
+    } else if (minScore === scores.tai) {
+      return {
+        title: "課題：ビジネスの軸（戦略）がブレています",
+        text: "目の前の作業に追われ、「どこへ向かうべきか」を見失っています。ビジネスモデルと価格設定を見直すタイミングです。",
+        link: "https://bizpioneer.com", // ★ご自身のBizPioneerのURLに変更
+        linkText: "BizPioneerで戦略を練り直す"
+      };
+    } else {
+      return {
+        title: "課題：実務（スキル）がボトルネックです",
+        text: "気合いや根性に頼りすぎており、労働集約型の働き方になっています。ITツールを活用して自分の時間を生み出しましょう。",
+        link: "https://reskill.bizpioneer.com", // ★ご自身のRe:Skill BlogのURLに変更
+        linkText: "Re:Skill Blogで自動化を学ぶ"
+      };
+    }
+  };
+
   return (
-    <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh', padding: '60px 20px', fontFamily: 'sans-serif' }}>
-      
-      <div style={{ maxWidth: '800px', margin: '0 auto', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
+    <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh', padding: '40px 20px', fontFamily: 'sans-serif' }}>
+      <div style={{ maxWidth: '700px', margin: '0 auto', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
         
-        {/* ヘッダーエリア */}
-        <div style={{ backgroundColor: '#1e293b', padding: '50px 30px', textAlign: 'center', color: '#fff' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: '0 0 16px 0', lineHeight: '1.4' }}>
-            あなたのビジネス、<br />
-            “心・技・体” は整っていますか？
-          </h1>
-          <p style={{ fontSize: '16px', color: '#cbd5e1', lineHeight: '1.6', margin: '0' }}>
-            個人が持続可能にビジネスを行い、自立し続けるためには、<br />
-            単なるスキルやノウハウだけでなく、3つのバランスが不可欠です。
-          </p>
-        </div>
-
-        {/* 3軸の解説エリア */}
-        <div style={{ padding: '40px 30px' }}>
-          <h2 style={{ fontSize: '22px', textAlign: 'center', color: '#0f172a', marginBottom: '30px', borderBottom: '2px solid #e2e8f0', paddingBottom: '15px' }}>
-            行き詰まる原因は、どれか1つの欠如かもしれません
-          </h2>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
-              <div style={{ backgroundColor: '#ea580c', color: '#fff', width: '48px', height: '48px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold', flexShrink: 0 }}>体</div>
-              <div>
-                <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', color: '#0f172a' }}>戦略とマインドセット（BizPioneer）</h3>
-                <p style={{ margin: '0', fontSize: '15px', color: '#475569', lineHeight: '1.6' }}>どこへ向かうべきかの「羅針盤」。優れたサービスがあっても、戦う場所や心構えを間違えればビジネスは立ち行かなくなります。</p>
-              </div>
+        {/* 1. イントロダクション */}
+        {step === 'intro' && (
+          <div>
+            <div style={{ backgroundColor: '#1e293b', padding: '50px 30px', textAlign: 'center', color: '#fff' }}>
+              <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 16px 0', lineHeight: '1.4' }}>
+                SoloCompass 総合評価システム
+              </h1>
+              <p style={{ fontSize: '15px', color: '#cbd5e1', lineHeight: '1.6', margin: '0' }}>
+                15個の質問に直感で答えるだけで、あなたのビジネスの<br />「心・技・体」のバランスを即座に診断・レポート化します。
+              </p>
             </div>
-            
-            <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
-              <div style={{ backgroundColor: '#0070f3', color: '#fff', width: '48px', height: '48px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold', flexShrink: 0 }}>技</div>
-              <div>
-                <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', color: '#0f172a' }}>実務・自動化スキル（Re:Skill Blog）</h3>
-                <p style={{ margin: '0', fontSize: '15px', color: '#475569', lineHeight: '1.6' }}>前に進むための「エンジン」。気合いや根性だけでは限界が来ます。ITツールを活用し、個人の生産性を最大化する技術が必要です。</p>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
-              <div style={{ backgroundColor: '#52796f', color: '#fff', width: '48px', height: '48px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold', flexShrink: 0 }}>心</div>
-              <div>
-                <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', color: '#0f172a' }}>メンタル・マインドフルネス（Mindful Shutter）</h3>
-                <p style={{ margin: '0', fontSize: '15px', color: '#475569', lineHeight: '1.6' }}>走り続けるための「メンテナンス」。どんなに戦略やスキルがあっても、心が折れてしまえばすべてがストップしてしまいます。</p>
-              </div>
+            <div style={{ padding: '40px 30px', textAlign: 'center' }}>
+              <button 
+                onClick={() => setStep('quiz')}
+                style={{ backgroundColor: '#ea580c', color: '#fff', padding: '16px 40px', fontSize: '18px', fontWeight: 'bold', borderRadius: '30px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 6px rgba(234,88,12,0.3)' }}
+              >
+                無料診断をスタートする
+              </button>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* フォームエリア（リスト獲得） */}
-        <div style={{ backgroundColor: '#f1f5f9', padding: '40px 30px', borderTop: '1px solid #e2e8f0' }}>
-          <h2 style={{ fontSize: '20px', textAlign: 'center', color: '#0f172a', marginBottom: '16px' }}>
-            あなたの「現在地」を知る総合評価レポートを無料プレゼント
-          </h2>
-          <p style={{ textAlign: 'center', fontSize: '14px', color: '#475569', marginBottom: '30px', lineHeight: '1.6' }}>
-            以下のフォームにご登録いただいた方に、3つの軸からあなたのビジネスの持続可能性を診断する「総合評価シート（PDF版）」と、個人が自立するための特別メール講座をお届けします。
-          </p>
+        {/* 2. クイズ画面 */}
+        {step === 'quiz' && (
+          <div style={{ padding: '40px 30px' }}>
+            <div style={{ marginBottom: '20px', fontSize: '14px', color: '#64748b', fontWeight: 'bold' }}>
+              質問 {currentQuestion + 1} / 15 （{questions[currentQuestion].axis}の診断）
+            </div>
+            <div style={{ width: '100%', backgroundColor: '#e2e8f0', height: '6px', borderRadius: '3px', marginBottom: '40px' }}>
+              <div style={{ width: `${((currentQuestion) / 15) * 100}%`, backgroundColor: '#2563eb', height: '100%', borderRadius: '3px', transition: 'width 0.3s' }}></div>
+            </div>
 
-          <form style={{ maxWidth: '500px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <input 
-              type="email" 
-              placeholder="メールアドレスを入力してください" 
-              required 
-              style={{ padding: '16px', fontSize: '16px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', width: '100%', boxSizing: 'border-box' }}
-            />
-            {/* ★修正：onClickイベントを削除し、純粋な送信ボタンに変更しました */}
-            <button 
-              type="submit" 
-              style={{ backgroundColor: '#2563eb', color: '#fff', padding: '16px', fontSize: '16px', fontWeight: 'bold', borderRadius: '8px', border: 'none', cursor: 'pointer', transition: 'background 0.2s', width: '100%' }}
-            >
-              無料レポートを受け取る
-            </button>
-            <p style={{ textAlign: 'center', fontSize: '12px', color: '#94a3b8', margin: '8px 0 0 0' }}>
-              ※ 登録解除はいつでも可能です。プライバシーポリシーに同意の上ご登録ください。
-            </p>
-          </form>
-        </div>
+            <h2 style={{ fontSize: '20px', color: '#0f172a', marginBottom: '40px', lineHeight: '1.5', textAlign: 'center' }}>
+              {questions[currentQuestion].text}
+            </h2>
 
-        {/* 戻るリンク */}
-        <div style={{ textAlign: 'center', padding: '20px', backgroundColor: '#fff' }}>
-          <Link href="/" style={{ color: '#2563eb', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold' }}>
-            ← サイトトップへ戻る
-          </Link>
-        </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {[
+                { label: '全く当てはまらない', score: 1 },
+                { label: 'あまり当てはまらない', score: 2 },
+                { label: 'どちらとも言えない', score: 3 },
+                { label: 'やや当てはまる', score: 4 },
+                { label: '非常に当てはまる', score: 5 },
+              ].map((option, idx) => (
+                <button 
+                  key={idx}
+                  onClick={() => handleAnswer(option.score)}
+                  style={{ padding: '16px', backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '16px', color: '#334155', cursor: 'pointer', textAlign: 'left', transition: 'background 0.2s' }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#e2e8f0'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 3. 結果レポート画面 */}
+        {step === 'result' && (() => {
+          const scores = calculateScores();
+          const advice = getAdvice(scores);
+          return (
+            <div>
+              <div style={{ backgroundColor: '#f1f5f9', padding: '30px', textAlign: 'center', borderBottom: '1px solid #e2e8f0' }}>
+                <h2 style={{ fontSize: '22px', color: '#0f172a', margin: '0' }}>あなたの総合評価レポート</h2>
+              </div>
+              
+              <div style={{ padding: '40px 30px' }}>
+                {/* スコア表示 */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '40px', gap: '16px' }}>
+                  <div style={{ flex: 1, backgroundColor: '#fff7ed', padding: '20px', borderRadius: '12px', textAlign: 'center', border: '1px solid #fed7aa' }}>
+                    <div style={{ fontSize: '14px', color: '#ea580c', fontWeight: 'bold', marginBottom: '8px' }}>体（戦略）</div>
+                    <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#9a3412' }}>{scores.tai}<span style={{ fontSize:'16px' }}>/25</span></div>
+                  </div>
+                  <div style={{ flex: 1, backgroundColor: '#eff6ff', padding: '20px', borderRadius: '12px', textAlign: 'center', border: '1px solid #bfdbfe' }}>
+                    <div style={{ fontSize: '14px', color: '#2563eb', fontWeight: 'bold', marginBottom: '8px' }}>技（実務）</div>
+                    <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#1e40af' }}>{scores.waza}<span style={{ fontSize:'16px' }}>/25</span></div>
+                  </div>
+                  <div style={{ flex: 1, backgroundColor: '#f0fdf4', padding: '20px', borderRadius: '12px', textAlign: 'center', border: '1px solid #bbf7d0' }}>
+                    <div style={{ fontSize: '14px', color: '#16a34a', fontWeight: 'bold', marginBottom: '8px' }}>心（メンタル）</div>
+                    <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#166534' }}>{scores.shin}<span style={{ fontSize:'16px' }}>/25</span></div>
+                  </div>
+                </div>
+
+                {/* AI（プログラム）からのアドバイス */}
+                <div style={{ backgroundColor: '#fff', border: '2px solid #e2e8f0', borderRadius: '12px', padding: '30px' }}>
+                  <h3 style={{ fontSize: '18px', color: '#0f172a', marginBottom: '16px', borderBottom: '2px solid #f1f5f9', paddingBottom: '12px' }}>
+                    {advice.title}
+                  </h3>
+                  <p style={{ fontSize: '15px', color: '#475569', lineHeight: '1.7', marginBottom: '24px' }}>
+                    {advice.text}
+                  </p>
+                  
+                  {/* 最も欠けている要素を補うためのサイトへ誘導 */}
+                  <div style={{ textAlign: 'center' }}>
+                    <a href={advice.link} style={{ display: 'inline-block', backgroundColor: '#0f172a', color: '#fff', padding: '14px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '15px' }}>
+                      👉 {advice.linkText}
+                    </a>
+                  </div>
+                </div>
+
+                {/* やり直しリンク */}
+                <div style={{ textAlign: 'center', marginTop: '30px' }}>
+                  <button onClick={() => { setStep('intro'); setAnswers(Array(15).fill(0)); setCurrentQuestion(0); }} style={{ background: 'none', border: 'none', color: '#64748b', textDecoration: 'underline', cursor: 'pointer', fontSize: '14px' }}>
+                    もう一度診断する
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
       </div>
     </div>
