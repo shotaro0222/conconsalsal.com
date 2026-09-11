@@ -84,7 +84,7 @@ export default function HubPage() {
             {/* ヒーローエリア */}
             <div style={{ backgroundColor: '#1e293b', padding: '50px 30px', textAlign: 'center', color: '#fff' }}>
               <h1 style={{ fontSize: '26px', fontWeight: 'bold', margin: '0 0 16px 0', lineHeight: '1.5' }}>
-                個人ビジネスの現在地を知る<br />「SoloCompass」総合評価
+                ビジネスの現在地を知る<br />「SoloCompass」総合評価
               </h1>
               <p style={{ fontSize: '15px', color: '#cbd5e1', lineHeight: '1.7', margin: '0' }}>
                 戦略・実務・メンタル。15個の質問からあなたの現在地を即座に可視化し、<br />持続可能なビジネスを作るための「次の一手」を導き出します。
