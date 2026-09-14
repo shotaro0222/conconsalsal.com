@@ -2,6 +2,7 @@ name: Auto Generate and Deploy
 
 on:
   schedule:
+    # 3日に1回、日本時間の朝8時（UTC23時）に実行
     - cron: '0 23 */3 * *'
   workflow_dispatch:
     inputs:
@@ -35,6 +36,7 @@ jobs:
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          # 画面からの入力を環境変数として渡す
           IS_BURST: ${{ github.event.inputs.burst }} 
         run: node scripts/generate-article.mjs
 
@@ -42,10 +44,13 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          # フォルダが存在しない場合は作成（エラー回避）
           mkdir -p content/posts
           git add content/posts/
+          # 生成されたファイル（変更）がある場合のみコミットしてプッシュ
           if ! git diff --staged --quiet; then
             git commit -m "Auto-generate new article"
+            git pull origin main --rebase   # ★ここに pull（最新版の取得）を追加！
             git push
           else
             echo "追加された記事がないため、コミットをスキップしました"
@@ -65,5 +70,5 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           
-          # 2. rsyncで一発デプロイ（★一番最後をご自身の3つ目のドメインに合わせてください）
-          rsync -avz --delete -e "ssh -p 10022 -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" ./out/ $FTP_USER@$FTP_HOST:~/conconsalsal.com/public_html/
+          # 2. rsyncで一発デプロイ（今回は fudan-photo.com に変更）
+          rsync -avz --delete -e "ssh -p 10022 -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" ./out/ $FTP_USER@$FTP_HOST:~/fudan-photo.com/public_html/
