@@ -17,8 +17,7 @@ if (fs.existsSync(mediaPath)) {
 async function generateSingleArticle(index) {
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
   
-  // ★ プロンプトを強力に修正（返事禁止、タイトルのフォーマット指定）
-  // ※バックスラッシュ(\)を使ってバッククォートをエスケープしています
+  // ★ プロンプト修正：タイトルへのHTML混入を厳しく禁止
 const prompt = `
 あなたはフリーランスや起業家を支援するプロのビジネスライターです。
 「副業」「フリーランス」「起業」「ビジネススキル」「マーケティング」をテーマに、読者のモチベーションを高めるブログ記事をMarkdown形式で作成してください。
@@ -26,18 +25,17 @@ const prompt = `
 【厳守事項 - 以下のルールを絶対に守ってください】
 1. AIとしての返事や挨拶は一切含めず、記事のコンテンツ（Markdown）のみを出力してください。
 2. 記事の先頭には必ず以下の形式でタイトルを記述してください。
-   記事タイトルにhtmlのコードが残っている状態は絶対に回避してください。
 ---
 title: "ここに魅力的で具体的な記事のタイトルを記載"
-category: "ここに記事のカテゴリーを記載（例：マーケティング、マインドセット、SEO、資金調達など）"
+category: "ここに記事のカテゴリーを記載（例：マーケティング、マインドセット、SEOなど）"
 ---
+※【超重要】titleの中身は「純粋なプレーンテキスト」のみとし、HTMLタグ（<a>など）やMarkdown記号は絶対に含めないでください。
+
 3. 本文では見出し（## や ###）を適切に使用して構造化してください。
 4. 【重要】記事の中で必ず1つ以上、「歴史上の偉人や著名な経営者の格言・名言」を引用ブロック（>）を用いて紹介し、その言葉が現代のビジネス（副業・起業・フリーランス）にどう活かせるかを解説してください。
 5. 読者が「今日から行動してみよう」と思えるような、具体的で前向きな結末にしてください。
 6. 以下の画像を、文脈に合わせて1〜2枚適切にMarkdown形式 (![alt](URL)) で挿入してください。
 7. 画像や表などを1記事に複数必ず用いてリッチコンテンツにすること。
-8. 記事の先頭には必ず以下の形式でタイトルとカテゴリー（1つ）を記述してください。
-
 
 記事の最後には、必ず記事のテーマに直結する「読者向けの簡易診断システム（3問）」のデータを、以下のJSONフォーマットで出力してください。Markdownのコードブロック(\`\`\`json)で囲むこと。
 
@@ -61,8 +59,24 @@ ${availableImages.map(img => `- ${img.url} (内容: ${img.alt})`).join('\n')}
   const result = await model.generateContent(prompt);
   let content = result.response.text();
 
-  // ★ここでアフィリエイトリンクを自動挿入
-  content = injectAffiliateLinks(content);
+  // AIが親切心で ```markdown という記号をつけてきた場合は除去する
+  content = content.replace(/^```(markdown)?\n/, '').replace(/\n```$/, '');
+
+  // ★【修正箇所】タイトル部分（Frontmatter）を切り離して、広告挿入から保護する
+  let frontmatter = '';
+  let body = content;
+
+  const match = content.match(/^(---[\s\S]*?---[\r\n]+)([\s\S]*)$/);
+  if (match) {
+    frontmatter = match[1]; // タイトルとカテゴリーの部分
+    body = match[2];        // 記事の本文
+  }
+
+  // ★本文（body）にだけアフィリエイトリンクを自動挿入
+  body = injectAffiliateLinks(body);
+
+  // 切り離していたタイトル部分を安全にくっつける
+  content = frontmatter + body;
 
   // ファイル名の生成と保存
   const dateStr = new Date().toISOString().replace(/[:.]/g, '-');
