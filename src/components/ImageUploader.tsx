@@ -3,12 +3,14 @@
 import { useState } from 'react';
 
 export default function ImageUploader() {
-  const [file, setFile] = useState(null);
+  // ★型を明示的に指定（File型またはnull）
+  const [file, setFile] = useState<File | null>(null);
   const [altText, setAltText] = useState('');
   const [status, setStatus] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleUpload = async (e) => {
+  // ★イベントの型（React.FormEvent）を指定
+  const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) return alert('画像を選択してください');
 
@@ -32,7 +34,11 @@ export default function ImageUploader() {
         setStatus(`✅ 成功: ${data.message}`);
         setFile(null);
         setAltText('');
-        document.getElementById('file-upload-input').value = '';
+        // ★HTMLInputElementとして型キャストしてエラーを防ぐ
+        const fileInput = document.getElementById('file-upload-input') as HTMLInputElement;
+        if (fileInput) {
+          fileInput.value = '';
+        }
       } else {
         setStatus(`❌ エラー: ${data.error}`);
       }
@@ -54,11 +60,12 @@ export default function ImageUploader() {
       <form onSubmit={handleUpload} className="space-y-5">
         <div>
           <label className="block text-sm font-bold text-gray-700 mb-2">画像ファイル</label>
+          {/* ★ onChangeのイベント型（React.ChangeEvent<HTMLInputElement>）を指定し、オプショナルチェーンを使用 */}
           <input 
             id="file-upload-input"
             type="file" 
             accept="image/png, image/jpeg, image/webp"
-            onChange={(e) => setFile(e.target.files[0])}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFile(e.target.files?.[0] || null)}
             className="w-full text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition"
           />
         </div>
