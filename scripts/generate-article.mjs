@@ -39,7 +39,7 @@ category: "ここに記事のカテゴリーを記載（例：マーケティン
 
 【レイアウトと表（テーブル）に関する厳格なルール】
 記事内で複数の項目とその解説を列挙する場面（例：症状と解説、メリットと詳細、原因と対策など）では、箇条書き（*）を絶対に使用せず、**必ずMarkdownの「表（テーブル）」**を作成して視覚的に見やすく整理してください。
-（悪い例： `* 項目: 説明 * 項目: 説明` のように1行に連続して詰め込むことは固く禁じます）
+（悪い例：「* 項目: 説明 * 項目: 説明」のように1行に連続して詰め込むことは固く禁じます）
 
 記事の最後には、必ず記事のテーマに直結する「読者向けの簡易診断システム（3問）」のデータを、以下のJSONフォーマットで出力してください。Markdownのコードブロック(\`\`\`json)で囲むこと。
 
@@ -63,8 +63,8 @@ ${availableImages.map(img => `- ${img.url} (内容: ${img.alt})`).join('\n')}
   const result = await model.generateContent(prompt);
   let content = result.response.text();
 
-  // ★修正：AIが記事全体を ```markdown で囲ってきた場合のみ、外側のラッパーを除去する
-  // これにより、末尾のJSONブロックの ``` が誤って消されることを完全に防ぎます。
+  // ★修正：AIが記事全体を \`\`\`markdown で囲ってきた場合のみ、外側のラッパーを除去する[cite: 1]
+  // これにより、末尾のJSONブロックの \`\`\` が誤って消されることを完全に防ぎます。[cite: 1]
   content = content.trim();
   const outerWrapperMatch = content.match(/^```(?:markdown|md)?\s*\n([\s\S]*)\n```$/);
   if (outerWrapperMatch) {
