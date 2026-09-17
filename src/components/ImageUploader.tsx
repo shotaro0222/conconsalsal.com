@@ -23,7 +23,7 @@ export default function ImageUploader() {
 
     try {
       // ※ご自身のXserverのドメイン（アップロード先）に変更してください
-      const res = await fetch('https://your-xserver-domain.com/upload-api.php', {
+      const res = await fetch('https://conconsalsal.com/upload-api.php', {
         method: 'POST',
         body: formData,
       });
