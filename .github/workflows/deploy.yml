@@ -36,7 +36,8 @@ jobs:
       - name: サーバーから最新の画像リストを取得
         run: |
           mkdir -p src/data
-          curl -f -s https://re-skill0.com/src/data/media.json -o src/data/media.json || echo "[]" > src/data/media.json
+          # ↓ドメインを conconsalsal.com に修正
+          curl -f -s https://conconsalsal.com/src/data/media.json -o src/data/media.json || echo "[]" > src/data/media.json
 
       - name: Gemini APIでコンテンツ生成
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
