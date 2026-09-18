@@ -66,6 +66,11 @@ export default async function Home() {
 
   return (
     <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh', padding: '0 0 40px 0' }}>
+      {/* ★ 追加：プロモーション表記（画面最上部に小さく表示） */}
+      <div style={{ textAlign: 'center', fontSize: '12px', color: '#888', paddingTop: '10px' }}>
+        ※このサイトはプロモーションを含んでいます
+      </div>
+
       {/* メインビジュアル */}
       <section style={{ marginBottom: '40px', padding: '50px 20px', borderBottom: '4px solid #ea580c', textAlign: 'center', backgroundColor: '#fff' }}>
         
