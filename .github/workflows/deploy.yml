@@ -83,4 +83,4 @@ jobs:
             --exclude="uploads/" \
             --exclude="src/" \
             -e "ssh -p 10022 -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" \
-            ./out/ $FTP_USER@$FTP_HOST:~/conconsalsal.com/public_html/
+            ./out/ $SSH_USER@$SSH_HOST:~/conconsalsal.com/public_html/
