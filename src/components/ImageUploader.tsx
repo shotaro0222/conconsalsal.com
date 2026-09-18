@@ -16,35 +16,43 @@ export default function ImageUploader() {
 
     setIsLoading(true);
     setStatus('アップロード中...');
-    
+
     const formData = new FormData();
     formData.append('image', file);
     formData.append('alt', altText);
 
     try {
-      // ※ご自身のXserverのドメイン（アップロード先）に変更してください
-      const res = await fetch('https://conconsalsal.com/upload-api.php', {
+      const res = await fetch('/upload-api.php', {
         method: 'POST',
         body: formData,
+        credentials: 'same-origin',
       });
-      
-      const data = await res.json();
 
-      if (data.success) {
-        setStatus(`✅ 成功: ${data.message}`);
-        setFile(null);
-        setAltText('');
-        // ★HTMLInputElementとして型キャストしてエラーを防ぐ
-        const fileInput = document.getElementById('file-upload-input') as HTMLInputElement;
-        if (fileInput) {
-          fileInput.value = '';
+      const responseText = await res.text();
+      let data: any = {};
+
+      if (responseText) {
+        try {
+          data = JSON.parse(responseText);
+        } catch {
+          throw new Error(responseText.slice(0, 200) || 'サーバーが不正な応答を返しました。');
         }
-      } else {
-        setStatus(`❌ エラー: ${data.error}`);
       }
-    } catch (err) {
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'アップロードに失敗しました。');
+      }
+
+      setStatus(`✅ 成功: ${data.message}`);
+      setFile(null);
+      setAltText('');
+      const fileInput = document.getElementById('file-upload-input') as HTMLInputElement | null;
+      if (fileInput) {
+        fileInput.value = '';
+      }
+    } catch (err: any) {
       console.error(err);
-      setStatus('❌ 通信エラーが発生しました。サーバー側の設定を確認してください。');
+      setStatus(`❌ 通信エラー: ${err.message || 'サーバー側の設定を確認してください。'}`);
     } finally {
       setIsLoading(false);
     }

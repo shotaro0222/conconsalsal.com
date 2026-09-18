@@ -14,32 +14,43 @@ export default function MediaManagementPage() {
 
     setIsLoading(true);
     setStatus('アップロード中...');
-    
+
     const formData = new FormData();
     formData.append('image', file);
     formData.append('alt', altText);
 
     try {
-      // ※注意: ご自身のXserverのドメイン（アップロード先）に変更してください
-      const res = await fetch('https://your-xserver-domain.com/upload-api.php', {
+      const res = await fetch('/upload-api.php', {
         method: 'POST',
         body: formData,
+        credentials: 'same-origin',
       });
-      
-      const data = await res.json();
 
-      if (data.success) {
-        setStatus(`✅ 成功: ${data.message}`);
-        setFile(null);
-        setAltText('');
-        // 連続アップロードできるようにファイル選択をリセット
-        document.getElementById('file-upload-input').value = '';
-      } else {
-        setStatus(`❌ エラー: ${data.error}`);
+      const responseText = await res.text();
+      let data = {};
+
+      if (responseText) {
+        try {
+          data = JSON.parse(responseText);
+        } catch {
+          throw new Error(responseText.slice(0, 200) || 'サーバーが不正な応答を返しました。');
+        }
+      }
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'アップロードに失敗しました。');
+      }
+
+      setStatus(`✅ 成功: ${data.message}`);
+      setFile(null);
+      setAltText('');
+      const fileInput = document.getElementById('file-upload-input');
+      if (fileInput) {
+        fileInput.value = '';
       }
     } catch (err) {
       console.error(err);
-      setStatus('❌ 通信エラーが発生しました。サーバー側の設定を確認してください。');
+      setStatus(`❌ 通信エラー: ${err.message || 'サーバー側の設定を確認してください。'}`);
     } finally {
       setIsLoading(false);
     }
