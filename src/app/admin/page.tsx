@@ -13,19 +13,21 @@ export default function AdminPage() {
     if (fs.existsSync(postsDirectory)) {
       const filenames = fs.readdirSync(postsDirectory).filter(f => f.endsWith('.md'));
       
-      // ファイル名を新しい順（降順）に並び替え
       articleFiles = [...filenames].sort((a, b) => b.localeCompare(a));
 
       let allText = '';
       
-      // ★修正：全記事ではなく「最新の10記事」だけを解析対象にする（ビルドのタイムアウト防止）
-      const targetFiles = articleFiles.slice(0, 10);
+      // ★修正：対象を「最新の5記事」に絞る
+      const targetFiles = articleFiles.slice(0, 5);
       
       targetFiles.forEach(filename => {
         const filePath = path.join(postsDirectory, filename);
         const content = fs.readFileSync(filePath, 'utf8');
         
-        const cleanContent = content
+        // ★修正：記事全文ではなく「最初の500文字」だけを切り取って解析する（負荷激減）
+        const excerpt = content.substring(0, 500);
+        
+        const cleanContent = excerpt
           .replace(/---[\s\S]*?---/g, '') 
           .replace(/```[\s\S]*?```/g, '') 
           .replace(/https?:\/\/[^\s]+/g, '') 
@@ -34,7 +36,6 @@ export default function AdminPage() {
         allText += cleanContent + ' ';
       });
 
-      // 10記事分だけでセグメント解析を実行
       const segmenter = new Intl.Segmenter('ja', { granularity: 'word' });
       const segments = segmenter.segment(allText);
       const wordCount: Record<string, number> = {};
