@@ -4,24 +4,30 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { injectAffiliateLinks } from './injectAffiliates.mjs';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-// GitHub Actionsから渡された環境変数を見て、50回か1回かを決定
 const runCount = process.env.IS_BURST === 'true' ? 50 : 1;
 
-// 画像リストの読み込み（Xserverにアップ済みの画像のパスリスト）
 const mediaPath = path.resolve(process.cwd(), 'src/data/media.json');
 let availableImages = [];
 if (fs.existsSync(mediaPath)) {
   availableImages = JSON.parse(fs.readFileSync(mediaPath, 'utf8'));
 }
 
+// 過去に生成した記事のタイトルを保持する配列
+const generatedTitlesHistory = [];
+
 async function generateSingleArticle(index) {
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
   
+  // 履歴が存在する場合、プロンプトに過去のタイトルリストを注入
+  const historyInstruction = generatedTitlesHistory.length > 0 
+    ? `\n【重要：テーマの重複回避】\n過去に以下のテーマ・タイトルの記事を既に作成しました。これらと内容、視点、タイトルが「絶対に被らないように」、全く新しい切り口で執筆してください。\n${generatedTitlesHistory.map(t => `- ${t}`).join('\n')}\n`
+    : '';
+
   // ★ プロンプト修正：エッセイ風のルールを適用しつつ、名言の引用とHTML表組みを活用
   const prompt = `
 あなたは個人やスモールビジネスを支援するプロのビジネスコラムニストです。
 「副業」「フリーランス」「起業」「ビジネススキル」「マーケティング」をテーマに、読者のモチベーションを高める「読み物（エッセイ風）」を作成してください。
-
+${historyInstruction}
 【厳守事項 - 以下のルールを絶対に守ってください】
 1. AIとしての返事や挨拶は一切含めず、記事のコンテンツのみを4000字程度で出力してください。
 2. 記事の先頭には必ず以下の形式でタイトルとカテゴリーを記述してください。
@@ -78,6 +84,14 @@ ${availableImages.map(img => `- ${img.url} (内容: ${img.alt})`).join('\n')}
   if (match) {
     frontmatter = match[1]; // タイトルとカテゴリーの部分
     body = match[2];        // 記事の本文
+
+    // frontmatterからタイトルを抽出して履歴に追加
+    const titleMatch = frontmatter.match(/title:\s*"([^"]+)"/);
+    if (titleMatch && titleMatch[1]) {
+      generatedTitlesHistory.push(titleMatch[1]);
+    } else {
+      generatedTitlesHistory.push(`生成済み記事${index}`);
+    }
   }
 
   // 本文（body）にだけアフィリエイトリンクを自動挿入
@@ -96,7 +110,7 @@ ${availableImages.map(img => `- ${img.url} (内容: ${img.alt})`).join('\n')}
   }
 
   fs.writeFileSync(path.join(dirPath, filename), content);
-  console.log(`✅ 記事生成完了: ${filename}`);
+  console.log(`✅ 記事生成完了: ${filename} (履歴件数: ${generatedTitlesHistory.length})`);
   
   // API制限回避のための待機時間（15秒）
   await new Promise(resolve => setTimeout(resolve, 15000));
