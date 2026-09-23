@@ -3,6 +3,7 @@ import Script from 'next/script';
 import settings from '../data/settings.json';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
+import Ranking from '../components/Ranking'; // ★ 追加：ランキングコンポーネントをインポート
 
 export const metadata = {
   title: 'BizPioneer',
@@ -69,6 +70,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               box-sizing: border-box;
             }
 
+            /* ★ 追加：サイドバーとランキングをまとめるラッパー */
+            .layout-sidebar-wrapper {
+              width: 300px;
+              flex-shrink: 0;
+              display: flex;
+              flex-direction: column;
+              gap: 24px;
+            }
+
             /* スマホ（画面幅768px以下）のレイアウト */
             @media (max-width: 768px) {
               .layout-container {
@@ -77,8 +87,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 gap: 24px;
                 padding: 0 15px;
               }
-              .layout-main {
+              /* ★ 修正：メインもサイドバーも横幅100%に */
+              .layout-main, .layout-sidebar-wrapper {
                 width: 100%;
+              }
+              .layout-main {
                 padding: 20px 15px; /* スマホでは余白を少し狭くして読みやすく */
               }
             }
@@ -106,7 +119,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main className="layout-main">
             {children}
           </main>
-          <Sidebar />
+
+          {/* 右側：ランキング ＆ サイドバー */}
+          <aside className="layout-sidebar-wrapper">
+            <Ranking />
+            <Sidebar />
+          </aside>
           
         </div>
         
