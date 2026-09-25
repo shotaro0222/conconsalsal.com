@@ -19,22 +19,20 @@ const generatedTitlesHistory = [];
 async function generateSingleArticle(index) {
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
   
-  // 履歴が存在する場合、プロンプトに過去のタイトルリストを注入
   const historyInstruction = generatedTitlesHistory.length > 0 
     ? `\n【重要：テーマの重複回避】\n過去に以下のテーマ・タイトルの記事を既に作成しました。これらと内容、視点、タイトルが「絶対に被らないように」、全く新しい切り口で執筆してください。\n${generatedTitlesHistory.map(t => `- ${t}`).join('\n')}\n`
     : '';
 
-  // ★ プロンプト修正：JSONコードブロックを「例外」として明記し確実に出力させる
   const prompt = `
 あなたは個人やスモールビジネスを支援するプロのビジネスコラムニストです。
 「副業」「フリーランス」「起業」「ビジネススキル」「マーケティング」をテーマに、読者のモチベーションを高める「読み物（エッセイ風）」を作成してください。
 ${historyInstruction}
 【厳守事項 - 以下のルールを絶対に守ってください】
 1. AIとしての返事や挨拶は一切含めず、記事のコンテンツのみを4000字程度で出力してください。
-2. 記事の先頭には必ず以下の形式でタイトルとカテゴリーを記述してください。
+2. 記事の1行目は必ず以下の形式でタイトルとカテゴリーを記述してください。改行や余計な文字は不要です。
 ---
 title: "ここに魅力的で具体的な記事のタイトルを記載"
-category: "ここに記事のカテゴリーを記載（例：マーケティング、マインドセット、SEOなど）"
+category: "ここに記事のカテゴリーを記載"
 ---
 ※【超重要】titleの中身は「純粋なプレーンテキスト」のみとし、HTMLタグやMarkdown記号は絶対に含めないでください。
 
@@ -77,43 +75,53 @@ ${availableImages.map(img => `- ${img.url} (内容: ${img.alt})`).join('\n')}
     content = outerWrapperMatch[1].trim();
   }
 
+  // ★ 修正：AIが前置きを書いた場合でも、確実にタイトル部分（Frontmatter）を見つけて保護する
   let frontmatter = '';
   let body = content;
 
-  const match = content.match(/^(---[\s\S]*?---[\r\n]+)([\s\S]*)$/);
-  if (match) {
-    frontmatter = match[1];
-    body = match[2];
+  const fmRegex = /---\s*[\r\n]+([\s\S]*?)[\r\n]+---/;
+  const match = content.match(fmRegex);
 
-    const titleMatch = frontmatter.match(/title:\s*"([^"]+)"/);
+  if (match) {
+    // タイトルとカテゴリーを安全に再構築（HTMLタグが万が一入っていても強制除去）
+    const rawFrontmatter = match[1].replace(/<[^>]+>/g, ''); 
+    frontmatter = `---\n${rawFrontmatter.trim()}\n---\n\n`;
+    
+    // --- より後ろを本文とする
+    body = content.substring(match.index + match[0].length).trim();
+
+    const titleMatch = rawFrontmatter.match(/title:\s*"([^"]+)"/);
     if (titleMatch && titleMatch[1]) {
       generatedTitlesHistory.push(titleMatch[1]);
     } else {
       generatedTitlesHistory.push(`生成済み記事${index}`);
     }
+  } else {
+    generatedTitlesHistory.push(`生成済み記事${index}`);
   }
 
-  // ★ 追加：JSONブロックがリンク処理で破壊されるのを防ぐための「退避」処理
+  // JSONブロックの退避
   let jsonBlock = '';
   const jsonRegex = /```json\s*[\s\S]*?\s*```/;
   const jsonMatch = body.match(jsonRegex);
   if (jsonMatch) {
     jsonBlock = jsonMatch[0];
-    body = body.replace(jsonRegex, ''); // 本文からJSONを一旦消去する
+    body = body.replace(jsonRegex, '');
   }
 
-  // ★ アフィリエイト・内部リンクの挿入（JSONが存在しない安全な本文に対して実行）
+  // 本文（body）に対してのみリンクを挿入
   body = injectAffiliateLinks(body);
   
   const postsDirectory = path.resolve(process.cwd(), 'content/posts');
   const keywordMap = buildKeywordMap(postsDirectory);
   body = injectInternalLinks(body, keywordMap);
 
-  // ★ 追加：退避させていたJSONブロックを、リンク処理が終わった本文の末尾に復元する
+  // 退避させていたJSONブロックを復元
   if (jsonBlock) {
     body = body.trim() + '\n\n' + jsonBlock;
   }
 
+  // 安全に切り離していたタイトル部分をくっつける
   content = frontmatter + body;
 
   const dateStr = new Date().toISOString().replace(/[:.]/g, '-');
